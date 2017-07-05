@@ -1,8 +1,8 @@
 FROM microsoft/windowsservercore:latest
 MAINTAINER Boshi Lian <farmer1992@gmail.com>
 
-ENV AZ_COPY_URL http://az837173.vo.msecnd.net/azcopy-5-2-0/MicrosoftAzureStorageTools.msi
-ENV AZ_COPY_VERSION 5.2.0
+ENV AZ_COPY_URL http://az837173.vo.msecnd.net/azcopy-6-1-0/MicrosoftAzureStorageTools.msi
+ENV AZ_COPY_VERSION 6.1.0
 
 RUN powershell -NoProfile -Command \
         Invoke-WebRequest %AZ_COPY_URL% -OutFile MicrosoftAzureStorageTools.msi;
