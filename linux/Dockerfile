@@ -1,11 +1,23 @@
-FROM microsoft/dotnet:latest
-MAINTAINER Boshi Lian <farmer1992@gmail.com>
+FROM busybox AS builder
 
-RUN mkdir /tmp/azcopy && \
-    wget -O /tmp/azcopy/azcopy.tar.gz https://aka.ms/downloadazcopyprlinux &&  \
-    tar -xf /tmp/azcopy/azcopy.tar.gz -C /tmp/azcopy &&  \
-    /tmp/azcopy/install.sh
+ARG BUILDTYPE=AMD64
 
-RUN rm -rf /tmp/azcopy
+ENV URL_AMD64=https://aka.ms/downloadazcopy-v10-linux
+ENV URL_ARM64=https://aka.ms/downloadazcopy-v10-linux-arm64
+
+RUN eval url=\$URL_$BUILDTYPE && \
+    wget $url -O azcopy.tar && \
+    tar -xvf azcopy.tar && \
+    mv azcopy_linux*/azcopy /
+
+FROM alpine
+LABEL maintainer="Boshi Lian<farmer1992@gmail.com>"
+
+RUN apk add --no-cache ca-certificates && \
+    update-ca-certificates
+
+RUN apk add --no-cache gcompat
+
+COPY --from=builder /azcopy /usr/bin/azcopy
 
 CMD ["/usr/bin/azcopy"]

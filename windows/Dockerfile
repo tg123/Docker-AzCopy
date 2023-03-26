@@ -1,19 +1,13 @@
-FROM microsoft/windowsservercore:latest
-MAINTAINER Boshi Lian <farmer1992@gmail.com>
+FROM mcr.microsoft.com/windows/nanoserver:ltsc2022
+LABEL maintainer="Boshi Lian<farmer1992@gmail.com>"
 
-ENV AZ_COPY_URL https://azcopy.azureedge.net/azcopy-7-1-0/MicrosoftAzureStorageTools.msi
-ENV AZ_COPY_VERSION 7.1.0
+ENV AZ_COPY_HOME "C:\azcopy"
 
-RUN powershell -NoProfile -Command \
-        Invoke-WebRequest %AZ_COPY_URL% -OutFile MicrosoftAzureStorageTools.msi;
+RUN curl -L -o azcopy.zip https://aka.ms/downloadazcopy-v10-windows
+RUN tar -xvf azcopy.zip
+RUN del azcopy.zip
+RUN for /d %i in ("azcopy_windows_*") do move %~nxi %AZ_COPY_HOME%
 
-RUN msiexec /i MicrosoftAzureStorageTools.msi /qn
+RUN setx PATH "%PATH%;%AZ_COPY_HOME%"
 
-RUN powershell -NoProfile -Command \
-        Remove-Item -Force MicrosoftAzureStorageTools.msi;
-
-RUN setx /M AZ_COPY_HOME "%ProgramFiles(x86)%\Microsoft SDKs\Azure\AzCopy"
-
-RUN setx /M PATH "%PATH%;%AZ_COPY_HOME%"
-
-CMD ["AzCopy.exe"]
+CMD ["azcopy.exe"]
